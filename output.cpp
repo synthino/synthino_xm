@@ -34,68 +34,43 @@ ISR(TCC0_OVF_vect) {
   for(byte i=0;i<MAX_NOTES;i++) {
     n = &note[i];
     if (n->midiVal != NOTE_OFF) {
-      if (n->waveformBuf != NULL) {
-	n->phase += n->phaseInc;
-	last = n->phaseFraction;
-	n->phaseFraction += n->phaseFractionInc;
-	if (n->phaseFraction < last) {
-	  // overflow in pseudo-floating point counter
-	  n->phase++;
-	}
-	if (!n->isSample) {
-	  if (n->phase >= N_WAVEFORM_SAMPLES) {
-	    if (n->midiVal != NOTE_PENDING_OFF) {
-	      n->phase -= N_WAVEFORM_SAMPLES;
-	      // don't assign volume until we cross zero
-	      n->volume = n->volumeNext;
-	    } else {
-	      n->midiVal = NOTE_OFF;
-	      continue;
-	    }
-	  }
-	} else {
-	  if ((n->phase >= n->sampleLength) || (n->midiVal == NOTE_PENDING_OFF)) {
-	    n->midiVal = NOTE_OFF;
-	    n->envelopePhase = OFF;
-	    continue;
-	  }
-	}
-	mix = pgm_read_word(n->waveformBuf + n->phase);
+      n->phase += n->phaseInc;
+      last = n->phaseFraction;
+      n->phaseFraction += n->phaseFractionInc;
+      if (n->phaseFraction < last) {
+	// overflow in pseudo-floating point counter
+	n->phase++;
+      }
 
-      } else {
+      if (n->phase >= N_WAVEFORM_SAMPLES) {
 	if (n->midiVal != NOTE_PENDING_OFF) {
+	  n->phase -= N_WAVEFORM_SAMPLES;
+	  // don't assign volume until we cross zero
 	  n->volume = n->volumeNext;
 	} else {
 	  n->midiVal = NOTE_OFF;
 	  continue;
 	}
-	unsigned int rand = noiseBuf[noiseBufIndex];
-	noiseBufIndex = (noiseBufIndex + 1) % NOISE_BUF_LEN;
-	// use a data point in the random number stream
-	// to determine if the output should change.
-	// The probability of the output change is in n->phase.
-	if ((rand+1024) <= n->phaseInc) {
-	  mix = noiseBuf[noiseBufIndex];
-	  n->lastOutput = mix;
-	} else {
-	  mix = n->lastOutput;
-	}
       }
+
+      mix = pgm_read_word(n->waveformBuf + n->phase);
+
       mix = mix >> 1;
       mix = adjustAmplitude(mix, n->volume);
+
+      // Filter:
+      if (filterCutoff[i] != 255) {
+	int tmp = (mix - buf0[i]) + (feedback[i] * (buf0[i] - buf1[i]) >> 8);
+	buf0[i] += ((long)filterCutoff[i] * tmp) >> 8;
+	buf1[i] += ((long)filterCutoff[i] * (buf0[i] - buf1[i])) >> 8;
+	mix = buf1[i];
+      }
+
       sum += mix;
 
-      n->volLevelRemaining--;
     }
   }
 
-  // Filter:
-  if (filterCutoff != 255) {
-    int tmp = (sum - buf0) + (feedback * (buf0 - buf1) >> 8);
-    buf0 += ((long)filterCutoff * tmp) >> 8;
-    buf1 += ((long)filterCutoff * (buf0 - buf1)) >> 8;
-    sum = buf1;
-  }
   
   output = sum + SILENCE;
 

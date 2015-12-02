@@ -53,7 +53,6 @@ ARCH = XMEGA
 #     calculate timings. Do NOT tack on a 'UL' at the end, this will be done
 #     automatically to create a 32-bit value in your source code.
 F_CPU = 32000000
-F_USB = 48000000
 
 FORMAT = ihex
 
@@ -67,12 +66,10 @@ ARDUINO = arduino
 LIB = lib
 ARDUINO_C_SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c $(ARDUINO)/WInterrupts.c
 ARDUINO_CPP_SRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/new.cpp $(ARDUINO)/Print.cpp $(ARDUINO)/Stream.cpp $(ARDUINO)/WMath.cpp $(ARDUINO)/WString.cpp
-LIB_SRC_CPP = $(LIB)/MIDI/MIDI.cpp $(LIB)/USBMIDI/USBMIDI.cpp
-LIB_SRC = $(LIB)/USBMIDI/usb.c
 WAVEFORMS = waveforms
-WAVEFORM_SRC = waveforms.cpp $(WAVEFORMS)/sin_0001.cpp $(WAVEFORMS)/tri_0001.cpp $(WAVEFORMS)/saw_0001.cpp $(WAVEFORMS)/squ.cpp $(WAVEFORMS)/piano_0001.cpp $(WAVEFORMS)/epiano_0001.cpp $(WAVEFORMS)/eorgan_0001.cpp $(WAVEFORMS)/cello_0001.cpp $(WAVEFORMS)/violin_0001.cpp $(WAVEFORMS)/oboe_0001.cpp $(WAVEFORMS)/flute_0001.cpp $(WAVEFORMS)/ebass_0001.cpp $(WAVEFORMS)/c604_0027.cpp $(WAVEFORMS)/akwf_1603.cpp $(WAVEFORMS)/sample_kick.cpp $(WAVEFORMS)/sample_snare.cpp $(WAVEFORMS)/sample_hihat.cpp $(WAVEFORMS)/sample_tom.cpp $(WAVEFORMS)/sample_clap.cpp
+WAVEFORM_SRC = waveforms.cpp $(WAVEFORMS)/sin_0001.cpp $(WAVEFORMS)/tri_0001.cpp $(WAVEFORMS)/saw_0001.cpp $(WAVEFORMS)/squ.cpp $(WAVEFORMS)/piano_0001.cpp $(WAVEFORMS)/epiano_0001.cpp $(WAVEFORMS)/eorgan_0001.cpp $(WAVEFORMS)/cello_0001.cpp $(WAVEFORMS)/violin_0001.cpp $(WAVEFORMS)/oboe_0001.cpp $(WAVEFORMS)/flute_0001.cpp $(WAVEFORMS)/ebass_0001.cpp $(WAVEFORMS)/c604_0027.cpp $(WAVEFORMS)/akwf_1603.cpp
 SRC = $(ARDUINO_C_SRC) $(LIB_SRC)
-CPPSRC = $(TARGET).cpp hardware.cpp init.cpp test.cpp eeprom.cpp debug.cpp input.cpp midi.cpp lfo.cpp synth.cpp timer.cpp filter.cpp noise.cpp arpeggiator.cpp groovebox.cpp $(WAVEFORM_SRC) $(ARDUINO_CPP_SRC) $(LIB_SRC_CPP)
+CPPSRC = $(TARGET).cpp hardware.cpp init.cpp test.cpp eeprom.cpp debug.cpp input.cpp lfo.cpp synth.cpp timer.cpp filter.cpp $(WAVEFORM_SRC) $(ARDUINO_CPP_SRC) $(LIB_SRC_CPP)
 FAST_CPPSRC = output.cpp
 
 
@@ -113,7 +110,7 @@ CDEFS = -DF_CPU=$(F_CPU)UL -D__PROG_TYPES_COMPAT__
 
 
 # Place -I options here
-CINCS = -I $(ARDUINO) -I $(LIB)/MIDI -I $(LIB)/USBMIDI -I $(LUFA_PATH) -I $(USB_LIB_PATH) -I $(USB_LIB_PATH)/Config
+CINCS = -I $(ARDUINO)
 
 
 
@@ -183,10 +180,6 @@ SCANF_LIB =
 
 
 MATH_LIB = -lm
-LUFA_PATH = lufa-LUFA-140928
-USB_LIB = synthinoxm_usb
-USB_LIB_PATH = $(LUFA_PATH)/SynthinoXM_USB
-USB_LIB_FILE = $(USB_LIB_PATH)/lib$(USB_LIB).a
 
 #---------------- External Memory Options ----------------
 
@@ -211,9 +204,7 @@ LDFLAGS = -Wl,-Map=$(TARGET).map,--cref
 # LDFLAGS += -Wl,--relax 
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += $(EXTMEMOPTS)
-LDFLAGS += -L$(USB_LIB_PATH)
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
-LDFLAGS += -l$(USB_LIB)
 
 
 
@@ -504,13 +495,10 @@ bootloader: $(TARGET).hex
 # Link: create ELF output file from object files.
 .SECONDARY : $(TARGET).elf
 .PRECIOUS : $(OBJ) $(FASTOBJ)
-%.elf: $(OBJ) $(FASTOBJ) $(USB_LIB_FILE)
+%.elf: $(OBJ) $(FASTOBJ)
 	@echo
 	@echo $(MSG_LINKING) $@
 	$(CC) $(ALL_CFLAGS) $^ --output $@ $(LDFLAGS)
-
-$(USB_LIB_FILE):
-	cd $(USB_LIB_PATH) && $(MAKE)
 
 # Compile: create object files from C source files.
 %.o : %.c
@@ -555,15 +543,10 @@ clean_list :
 	$(REMOVE) *.o
 	$(REMOVE) $(WAVEFORMS)/*.o
 	$(REMOVE) $(ARDUINO)/*.o
-	$(REMOVE) $(LIB)/MIDI/*.o
-	$(REMOVE) $(LIB)/USBMIDI/*.o
 	$(REMOVE) $(LST)
 	$(REMOVE) *.s
 	$(REMOVE) *.d
 	$(REMOVE) .dep/*
-
-cleanall: clean
-	cd $(USB_LIB_PATH) && $(MAKE) clean
 
 # Include the dependency files.
 -include $(shell mkdir .dep 2>/dev/null) $(wildcard .dep/*)

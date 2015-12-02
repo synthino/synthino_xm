@@ -20,11 +20,10 @@
 #include "synthino_xm.h"
 #include "waveforms.h"
 
-#define EEPROM_MAGIC_NUMBER 0xbad0
-#define PATCH_VALID_MARK 0xe3ad
-#define SEQUENCE_VALID_MARK 0xf7da
+#define EEPROM_MAGIC_NUMBER 0xbadd
+#define PATCH_VALID_MARK 0xe3ab
 #define PATCH_BASE_ADDR 5
-#define PATCH_SIZE 509
+#define PATCH_SIZE 63
 #define NUM_PATCHES 4
 
 byte readByte(uint16_t);
@@ -38,7 +37,6 @@ byte ledToggle = LOW;
 
 void readGlobalSettings() {
   if (eepromValid()) {
-    mode = readByte(2);
     tuningSetting = readWord(3);
 #ifdef DEBUG_ENABLE
     debugprintln("tuningSetting = ", tuningSetting);
@@ -50,7 +48,6 @@ void writeGlobalSettings() {
   eepromSetValid();
 
   cli();
-  writeByte(2, mode);
   writeWord(3, tuningSetting);
   sei();
 }
@@ -78,41 +75,22 @@ void savePatch(byte p) {
   uint16_t addr = PATCH_BASE_ADDR + (p * PATCH_SIZE);
   uint16_t startAddr = addr;
   addr = writeWord(addr, PATCH_VALID_MARK);
-  for(byte i=0;i<N_SETTINGS;i++) {
-    toggleLED(p);
-    addr = writeWord(addr, settings[i].attackVolLevelDuration);
-    addr = writeWord(addr, settings[i].decayVolLevelDuration);
-    uint16_t sustain = (settings[i].sustainVolLevel * 1000);
-    addr = writeWord(addr, sustain);
-    toggleLED(p);
-    addr = writeWord(addr, settings[i].releaseVolLevelDuration);
-    int16_t detune = (settings[i].detune * 1024);
-    addr = writeWord(addr, detune);
-    addr = writeByte(addr, settings[i].waveform);
-  }
 
-  toggleLED(p);
-  addr = writeWord(addr, filterCutoff);
-  addr = writeWord(addr, filterResonance);
-  addr = writeByte(addr, lfoWaveform);
+  addr = writeByte(addr, pitch);
 
-  if (mode == MODE_GROOVEBOX) {
-    addr = writeWord(addr, SEQUENCE_VALID_MARK);
-    for(byte t=0;t<SEQ_NUM_TRACKS;t++) {
-      toggleLED(p);
-      uint16_t volume = track[t].volumeScale * 1023;
-      addr = writeWord(addr, volume);
-      for(byte s=0;s<SEQ_LENGTH;s++) {
-	toggleLED(p);
-	addr = writeByte(addr, seq[s][t].midiVal);
-	addr = writeByte(addr, seq[s][t].velocity);
-	addr = writeByte(addr, seq[s][t].waveform);
-	addr = writeWord(addr, seq[s][t].duration);
-	addr = writeWord(addr, seq[s][t].startPulse);
-      }
+  addr = writeFloat(addr, detune);
+
+  addr = writeByte(addr, waveform[0]);
+  addr = writeByte(addr, waveform[1]);
+
+  for(byte i=0;i<NUM_LFO;i++) {
+    for(byte j=0;j<NUM_OSC;j++) {
+      addr = writeByte(addr, lfoEnabled[i][j]);
+      addr = writeFloat(addr, lfoFrequency[i][j]);
+      addr = writeFloat(addr, lfoDepth[i][j]);
     }
-    
-  }
+  }  
+
   digitalWrite(led[p], LOW);
   debugprintln("size = ", addr-startAddr);
   debugprintln("end address = ", addr);
@@ -128,64 +106,30 @@ void loadPatch(byte p) {
   cli();
   uint16_t addr = PATCH_BASE_ADDR + (p * PATCH_SIZE);
   addr += 2;
-  for(byte i=0;i<N_SETTINGS;i++) {
-    toggleLED(p);
-    settings[i].attackVolLevelDuration = readWord(addr);
-    addr += sizeof(uint16_t);
-    settings[i].decayVolLevelDuration = readWord(addr);
-    addr += sizeof(uint16_t);
-    uint16_t sustain = readWord(addr);
-    settings[i].sustainVolLevel = sustain / 1000.0;
-    addr += sizeof(uint16_t);
-    toggleLED(p);
-    settings[i].releaseVolLevelDuration = readWord(addr);
-    addr += sizeof(uint16_t);
-    int16_t detune = readWord(addr);
-    settings[i].detune = (float)(detune / 1024.0);
-    addr += sizeof(uint16_t);
-    settings[i].waveform = readByte(addr);
-    addr += sizeof(uint8_t);
-  }
 
-  toggleLED(p);
-  filterCutoff = readWord(addr);
-  addr += sizeof(uint16_t);
-  filterResonance = readWord(addr);
-  addr += sizeof(uint16_t);
-  lfoWaveform = readByte(addr);
-  lfoWaveformBuf = lfoWaveformBuffers[lfoWaveform];
+  pitch = readByte(addr);
   addr += sizeof(uint8_t);
 
-  if (mode == MODE_GROOVEBOX) {
-    uint16_t sequenceValidMark = readWord(addr);
-    addr += sizeof(uint16_t);
-    if (sequenceValidMark == SEQUENCE_VALID_MARK) {
-      debugprintln("loading sequence");
-      for(byte t=0;t<SEQ_NUM_TRACKS;t++) {
-	toggleLED(p);
-	uint16_t volume = readWord(addr);
-	addr += sizeof(uint16_t);
-	track[t].volumeScale = (float)volume / 1023.0;
-	for(byte s=0;s<SEQ_LENGTH;s++) {
-	  toggleLED(p);
-	  seq[s][t].midiVal = readByte(addr);
-	  addr += sizeof(uint8_t);
-	  seq[s][t].velocity = readByte(addr);
-	  addr += sizeof(uint8_t);
-	  seq[s][t].waveform = readByte(addr);
-	  addr += sizeof(uint8_t);
-	  seq[s][t].duration = readWord(addr);
-	  addr += sizeof(uint16_t);
-	  seq[s][t].startPulse = readWord(addr);
-	  addr += sizeof(uint16_t);
-	}
-      }
-    } else {
-      debugprintln("valid sequence not found");
-    }
-  }
-  digitalWrite(led[p], LOW);
+  detune = readFloat(addr);
+  addr += sizeof(float);
 
+  waveform[0] = readByte(addr);
+  addr += sizeof(uint8_t);
+  waveform[1] = readByte(addr);
+  addr += sizeof(uint8_t);
+
+  for(byte i=0;i<NUM_LFO;i++) {
+    for(byte j=0;j<NUM_OSC;j++) {
+      lfoEnabled[i][j] = readByte(addr);
+      addr += sizeof(uint8_t);
+      lfoFrequency[i][j] = readFloat(addr);
+      addr += sizeof(float);
+      lfoDepth[i][j] = readFloat(addr);
+      addr += sizeof(float);
+    }
+  }  
+
+  digitalWrite(led[p], LOW);
   sei();
 }
 

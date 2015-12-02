@@ -62,7 +62,6 @@ void debugprintln() {
 
 #ifdef DEBUG_ENABLE
 void doDebug() {
-  if (debug) {
     if ((millis() - lastDebugPrint) >= 1000) {
       lastDebugPrint = millis();
 
@@ -71,42 +70,10 @@ void doDebug() {
       // If the number of cycles remaining reaches 0, then the ISR will take up
       // all the CPU time and the code in v will not run.
 
-      /*
-      Serial.print(" arpPosition: ");
-      Serial.print(arpPosition);
-      Serial.print(" arpLength: ");
-      Serial.print(arpLength);
-      */
 
-
-      /*
-      for(byte i=0;i<MAX_NOTES;i++) {
-        Serial.print("midiVal[");
-        Serial.print(i);
-        Serial.print("]=");
-        Serial.print(note[i].midiVal);
-        Serial.print("  ");
-
-        Serial.print("f[");
-        Serial.print(i);
-        Serial.print("]=");
-        Serial.print(note[i].frequency);
-
-        Serial.print(" vol[");
-        Serial.print(i);
-        Serial.print("]=");
-        Serial.print(note[i].volume);
-        Serial.print(" | ");
-      }
-      */
-
-
-      if ((TCC0.PER - counterEnd) < 150) {
-	Serial.print(" cycles = ");
-	Serial.print(TCC0.PER - counterEnd);
-	Serial.println("");
-      }
-
+      Serial.print(" cycles = ");
+      Serial.print(TCC0.PER - counterEnd);
+      Serial.println("");
 
       unsigned int remaining = TCC0.PER - counterEnd;
       if (remaining < 50) {
@@ -115,7 +82,6 @@ void doDebug() {
 	Serial.println(" cycles remaining in ISR. Reduce sample rate or reduce the amount of code in the ISR.");
       }
     }
-  } // if (debug)
 }
 
 #endif

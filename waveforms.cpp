@@ -31,13 +31,7 @@ const int16_t *waveformBuffers[N_TOTAL_WAVEFORMS] = {
   violin_0001,
   oboe_0001,
   flute_0001,
-  ebass_0001,
-  NULL,         // noise
-  kick,
-  snare,
-  hihat,
-  tom,
-  clap
+  ebass_0001
 };
 
 
@@ -47,13 +41,5 @@ const int16_t *lfoWaveformBuffers[N_LFO_WAVEFORMS] = {
   saw_0001,
   c604_0027,
   akwf_1603
-};
-
-const int16_t sampleLength[N_SAMPLES] = {
-  KICK_LENGTH,
-  SNARE_LENGTH,
-  HIHAT_LENGTH,
-  TOM_LENGTH,
-  CLAP_LENGTH
 };
 

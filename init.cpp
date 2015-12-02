@@ -42,8 +42,6 @@ void checkReset() {
       if ((millis() - resetPressTime) > RESET_PRESS_DURATION) {
 	resetPressed = false;
 	patch = UNSET;
-	arpRunning = false;
-	seqRunning = false;
 	if (buttonPressed(BUTTON1)) {
 	  for(int i=0;i<MAX_NOTES;i++) {
 	    stopNote(i);
@@ -59,10 +57,6 @@ void checkReset() {
 }
 
 void reset(boolean softReset) {
-  arpRunning = false;
-  seqRunning = false;
-
-  initNoise();
 
   for(int i=0;i<4;i++) {
     buttonState[i] = HIGH;
@@ -89,19 +83,14 @@ void reset(boolean softReset) {
     note[i].phaseInc = 0;
     note[i].phaseFraction = 0;
     note[i].phaseFractionInc = 0;
-    note[i].envelopePhase = OFF;
   }
 
-  button[0].midiVal = 60;
-  button[1].midiVal = 64;
-  button[2].midiVal = 67;
-  button[3].midiVal = 72;
-
-  filterCutoff = 255; // set to highest value regardless of pot position.
+  running = false;
+  filterCutoff[0] = 255; // set to highest value regardless of pot position.
+  filterCutoff[1] = 255; // set to highest value regardless of pot position.
   filterResonance = 255;
-  setFilterFeedback();
-  filterCutoffPotTolerance = POT_LOCK_TOLERANCE;
-  filterResonancePotTolerance = POT_LOCK_TOLERANCE;
+  setFilterFeedback(0);
+  setFilterFeedback(1);
 
   if ((!softReset) && (buttonPressed(BUTTON1))) {
     if (buttonPressed(BUTTON2)) {
@@ -134,121 +123,62 @@ void reset(boolean softReset) {
     noteTable[i-MIDI_LOW] = 440.0 * (pow(2, ((i-69)+tuningAdjustment)/12.0));
   }
 
-  mode = selectMode();
+  PITCH_POT = 0;
+  DETUNE_POT = 0;
+  WAVEFORM_SELECT_POT = 1;
+  LFO_RATE_POT = 2;
+  LFO_DEPTH_POT = 3;
+  VOLUME_POT0 = 4;
+  VOLUME_POT1 = 6;
+  FILTER_CUTOFF_POT0 = 5;
+  FILTER_CUTOFF_POT1 = 7;
 
-  if (mode == MODE_SYNTH) {
-    ATTACK_TIME_POT = 0;
-    DECAY_TIME_POT = 0;
-    SUSTAIN_LEVEL_POT = 1;
-    RELEASE_TIME_POT = 1;
-    LFO_RATE_POT = 2;
-    LFO_DEPTH_POT = 3;
-    CHANNEL_SELECT_POT = 4;
-    PITCH_POT = 5;
-    DETUNE_POT = 5;
-    WAVEFORM_SELECT_POT = 6;
-    LFO_WAVEFORM_SELECT_POT = 6;
-    FILTER_CUTOFF_POT = 7;
-    FILTER_RESONANCE_POT = 7;
-  }
-  if (mode == MODE_ARPEGGIATOR) {
-    ATTACK_TIME_POT = 0;
-    DECAY_TIME_POT = 0;
-    SUSTAIN_LEVEL_POT = 1;
-    RELEASE_TIME_POT = 1;
-    LFO_RATE_POT = 2;
-    LFO_DEPTH_POT = 3;
-    ARPEGGIATOR_ROOT_NOTE_POT = 4;
-    ARPEGGIATOR_NOTE_LENGTH_POT = 4;
-    BPM_POT = 5;
-    WAVEFORM_SELECT_POT = 6;
-    LFO_WAVEFORM_SELECT_POT = 6;
-    FILTER_CUTOFF_POT = 7;
-    FILTER_RESONANCE_POT = 7;
-  }
-  if (mode == MODE_GROOVEBOX) {
-    ATTACK_TIME_POT = 0;
-    RELEASE_TIME_POT = 1;
-    TRACK_TRANSPOSE_POT = 2;
-    TRACK_FADER_POT = 3;
-    TRACK_SELECT_POT = 4;
-    BPM_POT = 5;
-    WAVEFORM_SELECT_POT = 6;
-    FILTER_CUTOFF_POT = 7;
-  }
-
-  for(byte i=0;i<N_NOTE_BUTTONS;i++) {
-    button[i].pitchReading = sampledAnalogRead(PITCH_POT);
+  for(byte i=0;i<NUM_LFO;i++) {
+    for(byte j=0;j<NUM_OSC;j++) {
+      lfoEnabled[i][j] = false;
+      lastLFOEnabled[i][j] = false;
+      lastLFORateReading[i][j] = 0;
+      lastLFODepthReading[i][j] = 0;
+      lfoFrequency[i][j] = 0.0;
+      lfoDepth[i][j] = 0.0;
+      lfoPhase[i][j] = 0;
+      lfoPhaseInc[i][j] = 0;
+      lfoPhaseFraction[i][j] = 0;
+      lfoPhaseFractionInc[i][j] = 0;
+    }
   }  
 
-  for(byte i=0;i<N_SETTINGS;i++) {
-    settings[i].attackReading = sampledAnalogRead(ATTACK_TIME_POT);
-    settings[i].decayReading = 0;
-    settings[i].sustainReading = 1023;
-    settings[i].releaseReading = sampledAnalogRead(RELEASE_TIME_POT);
-    settings[i].pitchBend = 0;
-    settings[i].detune = 0.0;
-    settings[i].waveformReading = sampledAnalogRead(WAVEFORM_SELECT_POT);
+  selectedOsc = 0;
+  selectedLFO = LFO_PITCH;
 
-    int setting = map(settings[i].attackReading, POT_MIN, 1023, 1, ATTACK_RANGE);
-    if (settings[i].attackReading < POT_MIN) {
-      setting = 0;
-    }
-    settings[i].attackVolLevelDuration = setting;
-
-    setting = map(settings[i].decayReading, POT_MIN, 1023, 1, DECAY_RANGE);
-    if (settings[i].decayReading < POT_MIN) {
-      setting = 0;
-    }
-    settings[i].decayVolLevelDuration = setting;
-
-    float fSetting = settings[i].sustainReading / 1000.0;
-    if (fSetting > 1.0) {
-      fSetting = 1.0;
-    }
-    settings[i].sustainVolLevel = fSetting;
-
-    setting = map(settings[i].releaseReading, POT_MIN, 1023, 1, RELEASE_RANGE);
-    if (settings[i].releaseReading < POT_MIN) {
-      setting = 0;
-    }
-    settings[i].releaseVolLevelDuration = setting;
-
-    settings[i].waveform = map(settings[i].waveformReading, 0, 1024, 0, N_TOTAL_WAVEFORMS);
-  }
-
-  lastLFOWaveformReading = sampledAnalogRead(LFO_WAVEFORM_SELECT_POT);
-  lfoWaveform = map(lastLFOWaveformReading, 0, 1024, 0, N_LFO_WAVEFORMS);
-
-  lastFilterCutoffReading = sampledAnalogRead(FILTER_CUTOFF_POT) >> 2; // range 0-255
-  filterCutoffReading = lastFilterCutoffReading;
-  lastFilterResonanceReading = sampledAnalogRead(FILTER_RESONANCE_POT) >> 2;
-
-  if (mode == MODE_SYNTH) {
-    selectedSettingsReading = sampledAnalogRead(CHANNEL_SELECT_POT);
-    selectedSettings = map(selectedSettingsReading, 0, 1024, 0, N_MIDI_CHANNELS);
-  }
-
-  if (mode == MODE_ARPEGGIATOR) {
-    initArpeggiator();
-  }
-
-  if (mode == MODE_GROOVEBOX) {
-    initGroovebox();
-    selectedSettingsReading = sampledAnalogRead(TRACK_SELECT_POT);
-    selectedSettings = map(selectedSettingsReading, 0, 1024, 0, SEQ_NUM_TRACKS);
-  }
-
-  fnEnabled = false;
+  detune = 0.0;
+  int reading = sampledAnalogRead(WAVEFORM_SELECT_POT);
+  waveformReading[0] = reading;
+  waveformReading[1] = reading;
+  waveform[0] = map(reading, 0, 1024, 0, N_TOTAL_WAVEFORMS);
+  waveform[1] = map(reading, 0, 1024, 0, N_TOTAL_WAVEFORMS);
+  detuneReading = sampledAnalogRead(DETUNE_POT);
+  pitchReading = sampledAnalogRead(PITCH_POT);
+  pitch = map(reading, 0, 1024, MIDI_LOW, MIDI_HIGH+1);
 
   if (patch != UNSET) {
     loadPatch(patch);
-    setPotReadings();
+    setOscPotReadings();
+    setLFOPotReadings();
   }
 
 
   writeGlobalSettings();
   delay(50);
+
+  for(byte i=0;i<4;i++) {
+    digitalWrite(led[i], HIGH);
+  }
+  delay(200);
+  for(byte i=0;i<4;i++) {
+    digitalWrite(led[i], LOW);
+  }
+
 
 #ifdef DEBUG_ENABLE
   debugprint("tuningAdjustment=", tuningAdjustment);
@@ -309,47 +239,6 @@ byte selectPatch(byte mode) {
     digitalWrite(led[i], LOW);
   }
   return selected;
-}
-
-byte selectMode() {
-  byte ledState = HIGH;
-  while (true) {
-    for(byte i=0;i<4;i++) {
-      digitalWrite(led[i], ledState);
-    }
-    for(byte i=0;i<10;i++) {
-      if (buttonPressedNew(BUTTON1)) {
-	for(byte j=0;j<4;j++) {
-	  digitalWrite(led[j], LOW);
-	}
-	digitalWrite(led[0], HIGH);
-	while (buttonPressed(BUTTON1)) ;
-	return MODE_SYNTH;
-      }
-      if (buttonPressedNew(BUTTON2)) {
-	for(byte j=0;j<4;j++) {
-	  digitalWrite(led[j], LOW);
-	}
-	digitalWrite(led[1], HIGH);
-	while (buttonPressed(BUTTON2)) ;
-	return MODE_ARPEGGIATOR;
-      }
-      if (buttonPressedNew(BUTTON3)) {
-	for(byte j=0;j<4;j++) {
-	  digitalWrite(led[j], LOW);
-	}
-	digitalWrite(led[2], HIGH);
-	while (buttonPressed(BUTTON3)) ;
-	return MODE_GROOVEBOX;
-      }
-      delay(40);
-    }    
-    if (ledState == HIGH) {
-      ledState = LOW;
-    } else {
-      ledState = HIGH;
-    }
-  }
 }
 
 void beep(int duration) {

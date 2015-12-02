@@ -20,23 +20,23 @@
 #include "waveforms.h"
 
 // LFO parameters
-float lfoFrequency[NUM_LFO] = {0.0, 0.0};
-float lfoDepth[NUM_LFO] = {0.0, 0.0};
-float lfoShift[NUM_LFO];
+float lfoFrequency[NUM_LFO][NUM_OSC] = {0.0, 0.0, 0.0};
+float lfoDepth[NUM_LFO][NUM_OSC] = {0.0, 0.0, 0.0};
+float lfoShift[NUM_LFO][NUM_OSC];
 byte lfoWaveform = 0;
 const int16_t *lfoWaveformBuf = lfoWaveformBuffers[0];
-volatile unsigned int lfoPhase[NUM_LFO] = {0, 0};
-volatile unsigned int lfoPhaseInc[NUM_LFO] = {0, 0};
-volatile byte lfoPhaseFraction[NUM_LFO] = {0, 0};
-volatile byte lfoPhaseFractionInc[NUM_LFO] = {0, 0};
+volatile unsigned int lfoPhase[NUM_LFO][NUM_OSC] = {0, 0, 0};
+volatile unsigned int lfoPhaseInc[NUM_LFO][NUM_OSC] = {0, 0, 0};
+volatile byte lfoPhaseFraction[NUM_LFO][NUM_OSC] = {0, 0, 0};
+volatile byte lfoPhaseFractionInc[NUM_LFO][NUM_OSC] = {0, 0, 0};
 
-void updateLFO(byte lfoNum) {
-  float lfoPhaseIncFloat = (lfoFrequency[lfoNum] * N_WAVEFORM_SAMPLES) / LFO_CLOCK_RATE;
-  lfoPhaseInc[lfoNum] = (int)lfoPhaseIncFloat;
-  lfoPhaseIncFloat -= lfoPhaseInc[lfoNum];
-  lfoPhaseFractionInc[lfoNum] = (int)(lfoPhaseIncFloat * 256.0);
+void updateLFO(byte lfoNum, byte osc) {
+  float lfoPhaseIncFloat = (lfoFrequency[lfoNum][osc] * N_WAVEFORM_SAMPLES) / LFO_CLOCK_RATE;
+  lfoPhaseInc[lfoNum][osc] = (int)lfoPhaseIncFloat;
+  lfoPhaseIncFloat -= lfoPhaseInc[lfoNum][osc];
+  lfoPhaseFractionInc[lfoNum][osc] = (int)(lfoPhaseIncFloat * 256.0);
   // lfoShift is how much to change the modulated parameter.  Range is [-1.0:1.0]
-  lfoShift[lfoNum] = (((int)pgm_read_word(lfoWaveformBuf + lfoPhase[lfoNum]))/1024.0);
+  lfoShift[lfoNum][osc] = (((int)pgm_read_word(lfoWaveformBuf + lfoPhase[lfoNum][osc]))/1024.0);
 
 }
 

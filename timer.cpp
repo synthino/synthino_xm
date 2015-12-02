@@ -19,35 +19,23 @@
 #include "synthino_xm.h"
 #include "waveforms.h"
 
-// Interrupt service routine for LFO updates and updating noise source.
+// Interrupt service routine for LFO updates.
 ISR(TCC1_OVF_vect) {
   byte last;
 
-  if (noiseUpdateCount++ > 2) {
-    noiseUpdateCount = 0;
-    boolean shouldUpdate = false;
-    for(byte i=0;i<MAX_NOTES;i++) {
-      if ((note[i].midiVal != NOTE_OFF)&& (note[i].waveformBuf == NULL)) {
-	shouldUpdate = true;
-	break;
-      }
-    }
-    if (shouldUpdate) {
-      updateNoise();
-    }
-  }
-
   for(byte lfo=0;lfo<NUM_LFO;lfo++) {
-    if (lfoEnabled[lfo]) {
-      lfoPhase[lfo] += lfoPhaseInc[lfo];
-      last = lfoPhaseFraction[lfo];
-      lfoPhaseFraction[lfo] += lfoPhaseFractionInc[lfo];
-      if (lfoPhaseFraction[lfo] < last) {
-	// overflow in pseudo-floating point counter
-	lfoPhase[lfo]++;
-      }
-      if (lfoPhase[lfo] >= N_WAVEFORM_SAMPLES) {
-	lfoPhase[lfo] -= N_WAVEFORM_SAMPLES;
+    for(byte osc=0;osc<NUM_OSC;osc++) {
+      if (lfoEnabled[lfo][osc]) {
+	lfoPhase[lfo][osc] += lfoPhaseInc[lfo][osc];
+	last = lfoPhaseFraction[lfo][osc];
+	lfoPhaseFraction[lfo][osc] += lfoPhaseFractionInc[lfo][osc];
+	if (lfoPhaseFraction[lfo][osc] < last) {
+	  // overflow in pseudo-floating point counter
+	  lfoPhase[lfo][osc]++;
+	}
+	if (lfoPhase[lfo][osc] >= N_WAVEFORM_SAMPLES) {
+	  lfoPhase[lfo][osc] -= N_WAVEFORM_SAMPLES;
+	}
       }
     }
   }

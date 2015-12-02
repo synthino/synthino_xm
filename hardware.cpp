@@ -62,13 +62,4 @@ void hardwareInit() {
   TCC1.PER = (int)(F_CPU / 1000); // once per millisecond, 1kHz
   TCC1.INTCTRLA = TC_OVFINTLVL_LO_gc;
 
-  // 96 pulses-per-quarter MIDI sync timer
-  TCE0.CTRLA = TC_CLKSEL_DIV8_gc ; // divide by 8 for prescaler
-  TCE0.CTRLB = 0;
-  TCE0.CTRLC = 0;
-  TCE0.CTRLD = 0;
-  TCE0.CTRLE = 0;
-  TCE0.PER = (F_CPU / 8) / (((DEFAULT_BPM<<1) * PPQ) / 60);
-  TCE0.INTCTRLA = TC_OVFINTLVL_LO_gc;
-
 }

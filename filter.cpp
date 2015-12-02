@@ -19,14 +19,14 @@
 #include "synthino_xm.h"
 
 // Filter parameters
-int filterCutoff;
+int filterCutoff[NUM_FILTERS];
 int filterResonance;
-long feedback;
-int buf0;
-int buf1;
+long feedback[NUM_FILTERS];
+int buf0[NUM_FILTERS];
+int buf1[NUM_FILTERS];
 
 
-void setFilterFeedback() {
-  feedback = (long)filterResonance + (long)(((long)filterResonance * ((int)384 - (255-filterCutoff))) >> 8);
+void setFilterFeedback(byte osc) {
+  feedback[osc] = (long)filterResonance + (long)(((long)filterResonance * ((int)384 - (255-filterCutoff[osc]))) >> 8);
 }
 
