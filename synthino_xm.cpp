@@ -369,7 +369,7 @@ void loop(void) {
     if ((diff > 5) && (setting != lfoWaveform)) {
       lastLFOWaveformReading = reading;
       lfoWaveform = setting;
-      lfoWaveformBuf = lfoWaveformBuffers[lfoWaveform];
+      //lfoWaveformBuf = lfoWaveformBuffers[lfoWaveform];
     }
   }
 

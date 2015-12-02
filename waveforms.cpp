@@ -20,40 +20,18 @@
 #include "waveforms.h"
 
 const int16_t *waveformBuffers[N_TOTAL_WAVEFORMS] = {
-  sin_0001,
-  tri_0001,
-  saw_0001,
-  squ,
-  piano_0001,
-  epiano_0001,
-  eorgan_0001,
-  cello_0001,
-  violin_0001,
-  oboe_0001,
-  flute_0001,
-  ebass_0001,
-  NULL,         // noise
-  kick,
-  snare,
-  hihat,
-  tom,
-  clap
+  cowbell_1,
+  cowbell_2,
+  cowbell_3
 };
 
 
 const int16_t *lfoWaveformBuffers[N_LFO_WAVEFORMS] = {
-  sin_0001,
-  squ,
-  saw_0001,
-  c604_0027,
-  akwf_1603
 };
 
 const int16_t sampleLength[N_SAMPLES] = {
-  KICK_LENGTH,
-  SNARE_LENGTH,
-  HIHAT_LENGTH,
-  TOM_LENGTH,
-  CLAP_LENGTH
+  COWBELL_1_LENGTH,
+  COWBELL_2_LENGTH,
+  COWBELL_3_LENGTH
 };
 

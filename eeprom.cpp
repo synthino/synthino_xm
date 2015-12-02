@@ -153,7 +153,7 @@ void loadPatch(byte p) {
   filterResonance = readWord(addr);
   addr += sizeof(uint16_t);
   lfoWaveform = readByte(addr);
-  lfoWaveformBuf = lfoWaveformBuffers[lfoWaveform];
+  //lfoWaveformBuf = lfoWaveformBuffers[lfoWaveform];
   addr += sizeof(uint8_t);
 
   if (mode == MODE_GROOVEBOX) {

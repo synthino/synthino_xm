@@ -311,22 +311,6 @@ void doGroovebox() {
       }
     } // for each track
 
-    if (metronomeMode != METRONOME_MODE_OFF) {
-      byte tickFrequency;
-      if (metronomeMode == METRONOME_MODE_QUARTER) {
-	tickFrequency = 4;
-      }
-      if (metronomeMode == METRONOME_MODE_SIXTEENTH) {
-	tickFrequency = 1;
-      }
-      if ((seqIndex % tickFrequency) == 0) {
-	if (seqIndex == 0) {
-	  metronomeNoteIndex = metronomeTick(64, MAX_NOTE_VOL);
-	} else {
-	  metronomeNoteIndex = metronomeTick(60, 40);
-	}
-      }
-    }
   }
 
 
@@ -414,15 +398,6 @@ void readGrooveboxButtons() {
     ledState[PREVIEW_LED] = HIGH;
   }
 
-  if (buttonPressedNew(BUTTON4)) {
-    metronomeMode = (metronomeMode + 1) % 3;
-    if ((metronomeMode == METRONOME_MODE_OFF) && (metronomeNoteIndex != UNSET)) {
-      stopNote(metronomeNoteIndex);
-      metronomeNoteIndex = UNSET;
-    }
-  }
-
-
 }
 
 void stopSequencer() {
@@ -446,19 +421,4 @@ void stopSequencer() {
   seqPreview = false;
 }
 
-byte metronomeTick(byte midiNote, byte volume) {
-  byte i = findNoteIndex();
-  initNote(i, midiNote);
-  note[i].startTime = millis();
-  note[i].waveform = METRONOME_WAVEFORM;
-  note[i].waveformBuf = waveformBuffers[METRONOME_WAVEFORM];
-  note[i].isSample = true;
-  note[i].sampleLength = sampleLength[METRONOME_WAVEFORM - N_WAVEFORMS];
-  note[i].envelopePhase = ATTACK;
-  note[i].volIndex = volume;
-  note[i].volume = volume;
-  note[i].volumeNext = volume;
-  setPhaseIncrement(i);
-  return i;
-}
 

@@ -23,49 +23,28 @@
 #include <avr/pgmspace.h>
 #include "Arduino.h"
 
-#define N_WAVEFORMS 13
-#define N_SAMPLES 5
-#define N_TOTAL_WAVEFORMS 18
-#define KICK_WAVEFORM 13
-#define SNARE_WAVEFORM 14
-#define HIHAT_WAVEFORM 15
-#define TOM_WAVEFORM 16
-#define CLAP_WAVEFORM 17
+#define N_WAVEFORMS 0
+#define N_SAMPLES 3
+#define N_TOTAL_WAVEFORMS 3
+#define COWBELL_1_WAVEFORM 0
+#define COWBELL_2_WAVEFORM 1
+#define COWBELL_3_WAVEFORM 2
 
-#define N_LFO_WAVEFORMS 5
+#define N_LFO_WAVEFORMS 0
 #define N_WAVEFORM_SAMPLES 600
 
 // 25KHz samples
-#define KICK_LENGTH 4403
-#define SNARE_LENGTH 4886
-#define HIHAT_LENGTH 4746
-#define TOM_LENGTH 5758
-#define CLAP_LENGTH 2446
-
+#define COWBELL_1_LENGTH 8555
+#define COWBELL_2_LENGTH 9490
+#define COWBELL_3_LENGTH 9987
 
 extern const int16_t *waveformBuffers[N_TOTAL_WAVEFORMS];
 extern const int16_t *lfoWaveformBuffers[N_LFO_WAVEFORMS];
 extern const int16_t sampleLength[N_SAMPLES];
 
-extern const int16_t sin_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t tri_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t saw_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t squ[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t piano_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t epiano_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t eorgan_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t cello_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t violin_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t oboe_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t flute_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t ebass_0001[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t c604_0027[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t akwf_1603[N_WAVEFORM_SAMPLES] PROGMEM;
-extern const int16_t kick[KICK_LENGTH] PROGMEM;
-extern const int16_t snare[SNARE_LENGTH] PROGMEM;
-extern const int16_t hihat[HIHAT_LENGTH] PROGMEM;
-extern const int16_t tom[TOM_LENGTH] PROGMEM;
-extern const int16_t clap[CLAP_LENGTH] PROGMEM;
+extern const int16_t cowbell_1[COWBELL_1_LENGTH] PROGMEM;
+extern const int16_t cowbell_2[COWBELL_2_LENGTH] PROGMEM;
+extern const int16_t cowbell_3[COWBELL_3_LENGTH] PROGMEM;
 
 
 #endif

@@ -186,200 +186,200 @@ void setDrumParameters(byte i, byte midiNote, byte velocity) {
   
   switch (midiNote) {
   case 35: //  Bass Drum 2
-    waveform = KICK_WAVEFORM;
+    waveform = COWBELL_1_WAVEFORM;
     newMidiNote = 57;
     break;
   case 36: //  Bass Drum 1
-    waveform = KICK_WAVEFORM;
+    waveform = COWBELL_1_WAVEFORM;
     newMidiNote = 60;
     break;
   case 37: //  Side Stick/Rimshot
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 70;
     length = 0.66;
     break;
   case 38: //  Snare Drum 1
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 60;
     break;
   case 39: //  Hand Clap
-    waveform = CLAP_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 60;
     break;
   case 40: //  Snare Drum 2
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 64;
     break;
   case 41: //  Low Tom 2
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 48;
     break;
   case 42: //  Closed Hi-hat
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 48;
     length = 0.33;
     break;
   case 43: //  Low Tom 1
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 55;
     break;
   case 44: //  Pedal Hi-hat
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 48;
     length = 0.66;
     break;
   case 45: //  Mid Tom 2
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 60;
     break;
   case 46: //  Open Hi-hat
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 60;
     break;
   case 47: //  Mid Tom 1
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 64;
     break;
   case 48: //  High Tom 2
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 72;
     break;
   case 49: //  Crash Cymbal 1
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 48;
     break;
   case 50: //  High Tom 1
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 75;
     break;
   case 51: //  Ride Cymbal 1
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 60;
     break;
   case 52: //  Chinese Cymbal
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 60;
     break;
   case 53: //  Ride Bell
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 60;
     break;
   case 54: //  Tambourine
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 60;
     break;
   case 55: //  Splash Cymbal
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 55;
     break;
   case 56: //  Cowbell
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 55;
     break;
   case 57: //  Crash Cymbal 2
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 57;
     break;
   case 58: //  Vibra Slap
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 55;
     break;
   case 59: //  Ride Cymbal 2
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 60;
     break;
   case 60: //  High Bongo
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 67;
     break;
   case 61: //  Low Bongo
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 55;
     length = 0.33;
     break;
   case 62: //  Mute High Conga
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 65;
     length = 0.33;
     break;
   case 63: //  Open High Conga
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 65;
     break;
   case 64: //  Low Conga
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 55;
     break;
   case 65: //  High Timbale
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 60;
     break;
   case 66: //  Low Timbale
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 55;
     break;
   case 67: //  High Agogo
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 65;
     break;
   case 68: //  Low Agogo
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 57;
     break;
   case 69: //  Cabasa
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 72;
     break;
   case 70: //  Maracas
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 70;
     break;
   case 71: //  Short Whistle
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 72;
     length = 0.33;
     break;
   case 72: //  Long Whistle
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 72;
     break;
   case 73: //  Short Guiro
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     length = 0.33;
     newMidiNote = 60;
     break;
   case 74: //  Long Guiro
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 60;
     break;
   case 75: //  Claves
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 84;
     break;
   case 76: //  High Wood Block
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 96;
     break;
   case 77: //  Low Wood Block
-    waveform = SNARE_WAVEFORM;
+    waveform = COWBELL_2_WAVEFORM;
     newMidiNote = 84;
     break;
   case 78: //  Mute Cuica
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 60;
     length = 0.33;
     break;
   case 79: //  Open Cuica
-    waveform = TOM_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 60;
     break;
   case 80: //  Mute Triangle
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 72;
     length = 0.33;
     break;
   case 81: //  Open Triangle
-    waveform = HIHAT_WAVEFORM;
+    waveform = COWBELL_3_WAVEFORM;
     newMidiNote = 72;
     break;
   }
