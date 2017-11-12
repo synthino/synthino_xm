@@ -27,4 +27,10 @@ Utility required to upload synthino_xm.hex to the Synthino XM device:
 * Mac OS X: [dfu-programmer](http://synthino.com/downloads/DFUProgrammer.dmg)
 
 
+If you already have dfu-programmer installed (for example, via macports), then instead of the 'make flash' command above, you should run these two commands after holding down button 3 and powering on the device:
+
+* 'dfu-programmer atxmega128a4u erase'
+* 'dfu-programmer atxmega128a4u flash synthino_xm.hex
+
+
 For more information on Synthino XM, visit [synthino.com](http://synthino.com)
